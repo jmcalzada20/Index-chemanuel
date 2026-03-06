@@ -45,13 +45,23 @@
         #clock { font-size: 4.5rem; font-weight: 900; letter-spacing: -3px; margin: 0; line-height: 1; }
         #greeting { font-size: 1.1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; }
 
+        .debug-ball {
+            position: fixed; top: 15px; right: 15px; width: 25px; height: 25px;
+            background: var(--ball-color); border-radius: 50%; opacity: 0.15;
+            cursor: pointer; z-index: 100; transition: 0.3s;
+            box-shadow: inset -2px -2px 5px rgba(0,0,0,0.2); overflow: hidden;
+        }
+        .debug-ball:hover { opacity: 0.8; transform: rotate(15deg) scale(1.1); }
+        .debug-ball .seam { position: absolute; width: 100%; height: 100%; border: 1px solid rgba(255,255,255,0.6); border-radius: 50%; }
+        .debug-ball .seam-1 { top: -50%; left: -20%; }
+        .debug-ball .seam-2 { bottom: -50%; right: -20%; }
+
         .search-box {
             background: var(--glass-panel); backdrop-filter: blur(10px);
             border-radius: 50px; padding: 15px 25px;
             display: flex; align-items: center; margin-bottom: 30px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            border: 2px dashed transparent;
-            transition: 0.3s;
+            border: 2px dashed transparent; transition: 0.3s;
         }
         .search-box.drag-over { border-color: var(--ball-color); background: white; transform: scale(1.02); }
         .search-box input { flex: 1; border: none; background: transparent; font-size: 1.1rem; outline: none; color: var(--text-main); width: 100%; }
@@ -60,23 +70,8 @@
             color: white; font-weight: 800; font-size: 0.9rem; text-transform: uppercase;
             letter-spacing: 2px; margin: 25px 0 15px 10px; display: flex; align-items: center; gap: 10px;
         }
-        
-        .section-header span { 
-            outline: none; 
-            padding: 4px 10px; 
-            border-radius: 8px; 
-            transition: background 0.3s;
-            border: 1px solid transparent;
-        }
-        .editing .section-header span { 
-            background: rgba(255,255,255,0.2); 
-            cursor: text; 
-            border: 1px dashed rgba(255,255,255,0.5);
-        }
-        .editing .section-header span:focus {
-            background: rgba(255,255,255,0.3);
-            border: 1px solid white;
-        }
+        .section-header span { outline: none; padding: 4px 10px; border-radius: 8px; transition: 0.3s; border: 1px solid transparent; }
+        .editing .section-header span { background: rgba(255,255,255,0.2); cursor: text; border: 1px dashed rgba(255,255,255,0.5); }
 
         .links-grid {
             display: grid;
@@ -94,10 +89,8 @@
             transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s;
             border: 2px solid transparent; box-shadow: 0 8px 15px rgba(0,0,0,0.1);
             position: relative; aspect-ratio: 1/1.2;
-            cursor: grab;
-            user-select: none;
+            cursor: grab; user-select: none;
         }
-        .link-card:active { cursor: grabbing; }
         .link-card.dragging { opacity: 0.3; transform: scale(0.9); border: 2px dashed var(--padel-blue); }
 
         .ball-icon {
@@ -105,10 +98,9 @@
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
             position: relative; margin-bottom: 12px; 
             box-shadow: inset -4px -6px 12px rgba(0,0,0,0.2), 0 5px 10px rgba(0,0,0,0.2);
-            pointer-events: none;
-            overflow: hidden;
+            pointer-events: none; overflow: hidden;
         }
-        .ball-icon .seam { position: absolute; width: 110%; height: 110%; border: 2px solid rgba(255, 255, 255, 0.8); border-radius: 50%; pointer-events: none; }
+        .ball-icon .seam { position: absolute; width: 110%; height: 110%; border: 2px solid rgba(255, 255, 255, 0.8); border-radius: 50%; }
         .ball-icon .seam-1 { top: -55%; left: -15%; transform: rotate(15deg); }
         .ball-icon .seam-2 { bottom: -55%; right: -15%; transform: rotate(15deg); }
 
@@ -138,6 +130,11 @@
 </head>
 <body id="padelBody">
 
+    <div class="debug-ball" title="Exportar configuración" onclick="exportCurrentState()">
+        <div class="seam seam-1"></div>
+        <div class="seam seam-2"></div>
+    </div>
+
     <div class="court-line line-v"></div>
     <div class="court-line line-h"></div>
     <div class="drop-hint">¡SUELTA PARA GUARDAR! 🎾</div>
@@ -148,7 +145,7 @@
             <div id="greeting">Jose Manuel - Padel Pro</div>
         </header>
 
-        <div class="search-box" id="dropAreaSearch">
+        <div class="search-box">
             <input type="text" id="mainSearch" placeholder="Busca o arrastra aquí un enlace...">
         </div>
 
@@ -170,15 +167,12 @@
         </div>
     </div>
 
-    <!-- Modal -->
     <div id="modal">
         <div class="modal-content">
             <h3 id="modalTitle">Nuevo Marcador</h3>
             <input type="text" id="addName" placeholder="Nombre">
             <input type="text" id="addUrl" placeholder="URL">
-            <select id="addType">
-                <!-- Las opciones se generan dinámicamente -->
-            </select>
+            <select id="addType"></select>
             <div style="display:flex; gap:10px; margin-top:15px;">
                 <button class="btn-action" style="background:var(--padel-blue); border:none; flex:1" id="saveBtn">Guardar</button>
                 <button class="btn-action" style="color:#666; border-color:#ccc; flex:1" onclick="closeModal()">Cancelar</button>
@@ -190,6 +184,7 @@
     let isEditing = false;
     let editTarget = null;
     let draggedElement = null;
+    let isProcessingDrop = false; // Bloqueo para evitar duplicados
     
     let featured = JSON.parse(localStorage.getItem('jm_p_feat')) || [
         { name: "Playtomic", url: "https://playtomic.io" },
@@ -220,14 +215,6 @@
         setupDragEvents();
     }
 
-    function syncModalSelect() {
-        const select = document.getElementById('addType');
-        select.innerHTML = `
-            <option value="feat">${sectionLabels.feat} (Pelota)</option>
-            <option value="gen">${sectionLabels.gen} (Pala)</option>
-        `;
-    }
-
     function createItem(item, idx, type) {
         const wrap = document.createElement('div');
         wrap.className = 'link-card';
@@ -238,7 +225,6 @@
         const finalUrl = item.url.startsWith('http') ? item.url : 'https://' + item.url;
         let domain = "google.com";
         try { domain = new URL(finalUrl).hostname; } catch(e) {}
-
         const iconSrc = `https://www.google.com/s2/favicons?sz=128&domain=${domain}`;
         const fallback = "https://img.icons8.com/fluency/48/tennis.png";
 
@@ -274,16 +260,13 @@
 
         ctrl.appendChild(del); ctrl.appendChild(ed);
         wrap.appendChild(ctrl);
-        
-        wrap.onclick = () => { if(!isEditing) window.open(finalUrl, '_blank'); };
-
+        wrap.onclick = (e) => { if(!isEditing) window.open(finalUrl, '_blank'); };
         return wrap;
     }
 
     function setupDragEvents() {
         const grids = document.querySelectorAll('.links-grid');
 
-        // Escuchar cuando algo entra en la ventana para mostrar el mensaje de "soltar"
         window.ondragover = (e) => {
             e.preventDefault();
             if (!draggedElement) document.body.classList.add('dragging-external');
@@ -307,6 +290,11 @@
 
             grid.addEventListener('drop', (e) => {
                 e.preventDefault();
+                e.stopPropagation(); // Detener propagación para evitar que otros grids reciban el evento
+                
+                if (isProcessingDrop) return; // Si ya se está procesando uno, ignorar
+                isProcessingDrop = true;
+
                 grid.classList.remove('drag-over');
                 document.body.classList.remove('dragging-external');
 
@@ -314,34 +302,31 @@
                     rebuildDataFromDOM();
                     save();
                 } else {
-                    // Manejo mejorado para soltar enlaces externos
+                    // Procesar enlace externo solo una vez
                     let url = e.dataTransfer.getData('text/uri-list') || e.dataTransfer.getData('text/plain');
-                    
                     if (url) {
-                        // Limpiar por si vienen múltiples URLs (uri-list suele traer varias separadas por saltos de línea)
                         url = url.split('\n')[0].trim();
-                        
                         if (url.startsWith('http') || url.includes('.')) {
                             let name = "Nuevo Enlace";
-                            try {
-                                const urlObj = new URL(url.startsWith('http') ? url : 'https://' + url);
-                                name = urlObj.hostname.replace('www.', '');
-                            } catch(err) {}
-
-                            const list = grid.dataset.type === 'feat' ? featured : general;
-                            list.push({ name, url });
+                            try { name = new URL(url.startsWith('http') ? url : 'https://' + url).hostname.replace('www.', ''); } catch(err) {}
+                            const type = grid.dataset.type;
+                            if(type === 'feat') featured.push({ name, url });
+                            else general.push({ name, url });
                             save();
                         }
                     }
                 }
+
+                // Desbloquear después de un breve instante
+                setTimeout(() => { isProcessingDrop = false; }, 100);
             });
         });
 
-        // Eventos para los elementos que ya existen (ordenar)
         document.querySelectorAll('.link-card').forEach(card => {
             card.addEventListener('dragstart', (e) => {
                 draggedElement = card;
                 card.classList.add('dragging');
+                e.dataTransfer.effectAllowed = "move";
             });
             card.addEventListener('dragend', () => {
                 card.classList.remove('dragging');
@@ -365,15 +350,21 @@
     function rebuildDataFromDOM() {
         const newFeat = [];
         const newGen = [];
+        
         document.querySelectorAll('#gridFeatured .link-card').forEach(card => {
-            const item = card.dataset.type === 'feat' ? featured[card.dataset.index] : general[card.dataset.index];
-            if(item) newFeat.push(item);
+            const idx = parseInt(card.dataset.index);
+            const list = card.dataset.type === 'feat' ? featured : general;
+            if(list[idx]) newFeat.push(list[idx]);
         });
+        
         document.querySelectorAll('#gridGeneral .link-card').forEach(card => {
-            const item = card.dataset.type === 'feat' ? featured[card.dataset.index] : general[card.dataset.index];
-            if(item) newGen.push(item);
+            const idx = parseInt(card.dataset.index);
+            const list = card.dataset.type === 'feat' ? featured : general;
+            if(list[idx]) newGen.push(list[idx]);
         });
-        featured = newFeat; general = newGen;
+
+        featured = newFeat;
+        general = newGen;
     }
 
     function save() {
@@ -383,13 +374,23 @@
         render();
     }
 
+    function exportCurrentState() {
+        const blob = new Blob([document.documentElement.outerHTML], {type: 'text/html'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'padel_pro_arena.html'; a.click();
+    }
+
+    function syncModalSelect() {
+        const select = document.getElementById('addType');
+        select.innerHTML = `<option value="feat">${sectionLabels.feat}</option><option value="gen">${sectionLabels.gen}</option>`;
+    }
+
     document.getElementById('labelFeatured').addEventListener('blur', function() {
-        sectionLabels.feat = this.innerText;
-        save();
+        if(sectionLabels.feat !== this.innerText) { sectionLabels.feat = this.innerText; save(); }
     });
     document.getElementById('labelGeneral').addEventListener('blur', function() {
-        sectionLabels.gen = this.innerText;
-        save();
+        if(sectionLabels.gen !== this.innerText) { sectionLabels.gen = this.innerText; save(); }
     });
 
     document.getElementById('toggleEdit').onclick = function() {
@@ -432,12 +433,14 @@
     };
 
     function closeModal() { document.getElementById('modal').style.display = 'none'; editTarget = null; }
-
     function updateTime() {
         const now = new Date();
         document.getElementById('clock').innerText = now.toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit'});
     }
-    setInterval(updateTime, 1000); updateTime(); render();
+    
+    setInterval(updateTime, 1000); 
+    updateTime(); 
+    render();
 </script>
 </body>
 </html>
