@@ -11,7 +11,7 @@
             --padel-grass: #2874a6;
             --padel-lines: rgba(255, 255, 255, 0.9);
             --racket-color: #2c3e50;
-            --ball-color: #d4f804;
+            --ball-color: #d4f804; /* Amarillo flúor */
             --glass-panel: rgba(255, 255, 255, 0.95);
             --text-main: #1b2631;
             --ai-purple: #8b5cf6;
@@ -59,7 +59,10 @@
             border-radius: 50px; padding: 10px 10px 10px 25px;
             display: flex; align-items: center; margin-bottom: 25px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            border: 2px dashed transparent;
+            transition: border-color 0.3s;
         }
+        .search-box.drag-over { border-color: var(--ai-purple); background: rgba(255,255,255,1); }
         .search-box input { flex: 1; border: none; background: transparent; font-size: 1.1rem; outline: none; color: var(--text-main); }
 
         /* GRID */
@@ -67,11 +70,25 @@
             color: white; font-weight: 800; font-size: 0.9rem; text-transform: uppercase;
             letter-spacing: 2px; margin: 25px 0 15px 10px; display: flex; align-items: center; gap: 10px;
         }
+        .section-header span {
+            outline: none; padding: 2px 5px; border-radius: 4px;
+        }
+        .editing .section-header span {
+            background: rgba(255,255,255,0.2);
+            cursor: text;
+        }
+        .edit-label-icon { display: none; opacity: 0.7; width: 14px; }
+        .editing .edit-label-icon { display: inline-block; }
+
         .links-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(var(--card-size), 1fr));
             gap: 15px; justify-items: center;
+            min-height: 100px;
+            border-radius: 20px;
+            transition: background 0.3s;
         }
+        .links-grid.drag-over { background: rgba(255,255,255,0.1); outline: 2px dashed white; }
 
         /* TARJETA */
         .link-card {
@@ -82,48 +99,73 @@
             border: 2px solid transparent; box-shadow: 0 8px 15px rgba(0,0,0,0.1);
             position: relative; aspect-ratio: 1/1.2;
         }
+        .link-card:hover { transform: translateY(-5px); }
 
-        /* ESTILO PELOTA (PARA DESTACADOS) */
+        /* PELOTA DE PÁDEL */
         .ball-icon {
-            width: 70px; height: 70px; background: var(--ball-color);
+            width: 75px; height: 75px; background: var(--ball-color);
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            position: relative; margin-bottom: 12px; box-shadow: inset -5px -5px 15px rgba(0,0,0,0.2), 0 5px 10px rgba(0,0,0,0.3);
-            border: 2px solid #c0d804;
-        }
-        .ball-icon::after {
-            content: ""; position: absolute; inset: 5px; border: 2px solid rgba(255,255,255,0.5);
-            border-radius: 50%; clip-path: polygon(0 0, 100% 0, 100% 30%, 0 30%);
+            position: relative; margin-bottom: 12px; 
+            box-shadow: 
+                inset -6px -10px 20px rgba(0,0,0,0.2), 
+                inset 10px 10px 25px rgba(255,255,255,0.6),
+                0 6px 15px rgba(0,0,0,0.3);
+            border: 1px solid rgba(0,0,0,0.05);
+            overflow: hidden;
         }
 
-        /* ESTILO PALA (PARA GENERAL) */
+        .ball-icon .seam {
+            position: absolute; width: 110%; height: 110%;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 50%; pointer-events: none;
+        }
+        .ball-icon .seam-1 { top: -50%; left: -10%; transform: rotate(15deg); }
+        .ball-icon .seam-2 { bottom: -50%; right: -10%; transform: rotate(15deg); }
+
+        .ball-texture {
+            content: ""; position: absolute; inset: 0; border-radius: 50%;
+            background-image: 
+                radial-gradient(rgba(0,0,0,0.05) 10%, transparent 10%),
+                radial-gradient(rgba(255,255,255,0.05) 10%, transparent 10%);
+            background-size: 4px 4px; background-position: 0 0, 2px 2px;
+            opacity: 0.5; pointer-events: none;
+        }
+
+        /* ESTILO PALA */
         .racket-icon-container {
             position: relative; width: 75px; height: 100px;
             display: flex; flex-direction: column; align-items: center; margin-bottom: 8px;
         }
         .racket-head {
             width: 75px; height: 80px; background: var(--racket-color);
-            border-radius: 40% 40% 45% 45%; 
-            display: flex; align-items: center; justify-content: center;
+            border-radius: 40% 40% 45% 45%; display: flex; align-items: center; justify-content: center;
             box-shadow: inset 0 0 15px rgba(0,0,0,0.5), 0 5px 10px rgba(0,0,0,0.3);
-            position: relative; overflow: hidden; border: 2px solid #555;
+            position: relative; overflow: hidden; border: 2px solid #444;
         }
         .racket-head::after {
-            content: ""; position: absolute; inset: 10px;
-            background-image: radial-gradient(circle, #111 1.5px, transparent 1.5px);
-            background-size: 10px 10px; opacity: 0.4; pointer-events: none;
+            content: ""; position: absolute; inset: 12px;
+            background-image: radial-gradient(circle, #111 1.2px, transparent 1.2px);
+            background-size: 8px 8px; opacity: 0.5; pointer-events: none;
         }
         .racket-handle {
-            width: 12px; height: 20px; background: #34495e;
-            border-bottom-left-radius: 4px; border-bottom-right-radius: 4px;
-            border: 1px solid #111; margin-top: -2px;
+            width: 14px; height: 22px; background: #222;
+            border-bottom-left-radius: 5px; border-bottom-right-radius: 5px;
+            border: 1px solid #000; margin-top: -2px;
             box-shadow: 0 3px 5px rgba(0,0,0,0.4);
+            background-image: repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.1) 2px, rgba(255,255,255,0.1) 4px);
         }
 
-        .icon-img { width: 32px; height: 32px; object-fit: contain; z-index: 2; border-radius: 6px; background: white; padding: 2px; }
+        .icon-img { 
+            width: 32px; height: 32px; object-fit: contain; z-index: 5; 
+            border-radius: 6px; background: white; padding: 4px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2); transition: transform 0.2s;
+        }
+        .link-card:hover .icon-img { transform: scale(1.1); }
 
         .link-title { 
             font-weight: 800; font-size: 0.85rem; text-align: center; 
             width: 100%; overflow: hidden; text-overflow: ellipsis; padding: 4px;
+            color: var(--text-main); outline: none;
         }
         
         /* CONTROLES EDICIÓN */
@@ -143,15 +185,29 @@
         .btn-action {
             background: rgba(255,255,255,0.15); border: 2px solid white; color: white;
             padding: 10px 20px; border-radius: 12px; font-weight: 800; cursor: pointer;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(5px); transition: 0.2s;
         }
+        .btn-action:hover { background: white; color: var(--padel-blue); }
 
         #modal {
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85);
             z-index: 1000; align-items: center; justify-content: center;
+            backdrop-filter: blur(5px);
         }
-        .modal-content { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 350px; color: #333; }
-        .modal-content input, .modal-content select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; }
+        .modal-content { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 350px; color: #333; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .modal-content h3 { margin-bottom: 20px; color: var(--padel-blue); font-weight: 900; }
+        .modal-content input, .modal-content select { width: 100%; padding: 14px; margin: 10px 0; border-radius: 12px; border: 2px solid #eee; box-sizing: border-box; font-size: 1rem; outline: none; transition: border-color 0.3s; }
+        .modal-content input:focus { border-color: var(--padel-grass); }
+
+        .drop-hint {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: var(--ai-purple); color: white; padding: 10px 30px;
+            border-radius: 30px; font-weight: bold; font-size: 1rem;
+            display: none; z-index: 1000; box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            pointer-events: none; border: 2px solid white;
+        }
+        body.dragging .drop-hint { display: block; animation: bounce 1s infinite; }
+        @keyframes bounce { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, -10px); } }
     </style>
 </head>
 <body id="padelBody">
@@ -160,21 +216,31 @@
     <div class="court-line line-h"></div>
     <div class="net"></div>
 
+    <div class="drop-hint">¡Suelta el enlace para guardar! 🎾</div>
+
     <div class="container">
         <header>
             <div id="clock">00:00</div>
             <div id="greeting">Jose Manuel - Padel Pro</div>
         </header>
 
-        <div class="search-box">
-            <input type="text" id="mainSearch" placeholder="Buscar en la red...">
+        <div class="search-box" id="searchContainer">
+            <input type="text" id="mainSearch" placeholder="Busca o arrastra una URL aquí...">
             <button class="btn-action" style="background:var(--ai-purple); border:none; margin-left:10px;" id="askAI">IA</button>
         </div>
 
-        <div class="section-header"><i data-lucide="award"></i> Destacados VIP (Pelotas)</div>
+        <div class="section-header">
+            <i data-lucide="award"></i> 
+            <span id="labelFeatured" contenteditable="false">Destacados VIP (Pelotas)</span>
+            <i data-lucide="pencil" class="edit-label-icon"></i>
+        </div>
         <div class="links-grid" id="gridFeatured"></div>
 
-        <div class="section-header"><i data-lucide="grid"></i> General (Palas)</div>
+        <div class="section-header">
+            <i data-lucide="grid"></i> 
+            <span id="labelGeneral" contenteditable="false">General (Palas)</span>
+            <i data-lucide="pencil" class="edit-label-icon"></i>
+        </div>
         <div class="links-grid" id="gridGeneral"></div>
 
         <div class="actions">
@@ -185,12 +251,12 @@
 
     <div id="modal">
         <div class="modal-content">
-            <h3 id="modalTitle" style="margin:0">Nuevo Marcador</h3>
-            <input type="text" id="addName" placeholder="Nombre">
+            <h3 id="modalTitle">Nuevo Marcador</h3>
+            <input type="text" id="addName" placeholder="Nombre (ej. Mi Correo)">
             <input type="text" id="addUrl" placeholder="URL (ej. google.com)">
             <select id="addType">
-                <option value="feat">Destacado VIP (Pelota)</option>
-                <option value="gen">General (Pala)</option>
+                <option value="feat" id="optFeat">Destacado VIP (Pelota)</option>
+                <option value="gen" id="optGen">General (Pala)</option>
             </select>
             <div style="display:flex; gap:10px; margin-top:15px;">
                 <button class="btn-action" style="background:var(--padel-blue); border:none; flex:1" id="saveBtn">Guardar</button>
@@ -203,6 +269,7 @@
     let isEditing = false;
     let editTarget = null;
     
+    // Configuración y Datos
     let featured = JSON.parse(localStorage.getItem('jm_p_feat')) || [
         { name: "Playtomic", url: "https://playtomic.io" },
         { name: "Soporte", url: "https://acavalmadrid.sharepoint.com/sites/SISTEMAS-TEAMS" }
@@ -213,18 +280,50 @@
         { name: "WhatsApp", url: "https://web.whatsapp.com" }
     ];
 
+    let sectionLabels = JSON.parse(localStorage.getItem('jm_p_labels')) || {
+        feat: "Destacados VIP (Pelotas)",
+        gen: "General (Palas)"
+    };
+
     function render() {
         const fg = document.getElementById('gridFeatured');
         const gg = document.getElementById('gridGeneral');
+        const lfeat = document.getElementById('labelFeatured');
+        const lgen = document.getElementById('labelGeneral');
+        const optFeat = document.getElementById('optFeat');
+        const optGen = document.getElementById('optGen');
+
         fg.innerHTML = ''; gg.innerHTML = '';
         
+        // Sincronizar textos en UI y en el Selector del Modal
+        lfeat.innerText = sectionLabels.feat;
+        lgen.innerText = sectionLabels.gen;
+        optFeat.innerText = sectionLabels.feat;
+        optGen.innerText = sectionLabels.gen;
+
         document.getElementById('padelBody').className = isEditing ? 'editing' : '';
         
+        // Hacer editables los labels si estamos en modo edición
+        lfeat.contentEditable = isEditing;
+        lgen.contentEditable = isEditing;
+
         featured.forEach((item, i) => fg.appendChild(createItem(item, i, 'feat')));
         general.forEach((item, i) => gg.appendChild(createItem(item, i, 'gen')));
         
         lucide.createIcons();
     }
+
+    // Guardar etiquetas al perder el foco y actualizar selector
+    document.getElementById('labelFeatured').onblur = function() {
+        sectionLabels.feat = this.innerText;
+        document.getElementById('optFeat').innerText = this.innerText;
+        save();
+    };
+    document.getElementById('labelGeneral').onblur = function() {
+        sectionLabels.gen = this.innerText;
+        document.getElementById('optGen').innerText = this.innerText;
+        save();
+    };
 
     function createItem(item, idx, type) {
         const wrap = document.createElement('div');
@@ -239,20 +338,23 @@
         if(!isEditing) link.target = "_blank";
         link.style.cssText = "text-decoration:none; color:inherit; display:flex; flex-direction:column; align-items:center; width:100%;";
 
-        // Elegir icono según tipo
+        const iconSrc = `https://www.google.com/s2/favicons?sz=128&domain=${domain}`;
+        const fallbackIcon = "https://img.icons8.com/fluency/48/tennis.png";
+
         if (type === 'feat') {
-            // DISEÑO PELOTA
             link.innerHTML = `
                 <div class="ball-icon">
-                    <img class="icon-img" src="https://www.google.com/s2/favicons?sz=128&domain=${domain}" onerror="this.src='https://img.icons8.com/fluency/48/tennis.png'">
+                    <div class="ball-texture"></div>
+                    <div class="seam seam-1"></div>
+                    <div class="seam seam-2"></div>
+                    <img class="icon-img" src="${iconSrc}" onerror="this.src='${fallbackIcon}'">
                 </div>
             `;
         } else {
-            // DISEÑO PALA
             link.innerHTML = `
                 <div class="racket-icon-container">
                     <div class="racket-head">
-                        <img class="icon-img" src="https://www.google.com/s2/favicons?sz=128&domain=${domain}" onerror="this.src='https://img.icons8.com/fluency/48/tennis.png'">
+                        <img class="icon-img" src="${iconSrc}" onerror="this.src='${fallbackIcon}'">
                     </div>
                     <div class="racket-handle"></div>
                 </div>
@@ -275,7 +377,8 @@
         const del = document.createElement('button');
         del.className = 'edit-btn btn-del';
         del.innerHTML = '×';
-        del.onclick = () => {
+        del.onclick = (e) => {
+            e.stopPropagation();
             if(type === 'feat') featured.splice(idx, 1);
             else general.splice(idx, 1);
             save();
@@ -284,7 +387,8 @@
         const ed = document.createElement('button');
         ed.className = 'edit-btn';
         ed.innerHTML = '✎';
-        ed.onclick = () => {
+        ed.onclick = (e) => {
+            e.stopPropagation();
             editTarget = { type, idx };
             document.getElementById('modalTitle').innerText = "Editar Enlace";
             document.getElementById('addName').value = item.name;
@@ -303,6 +407,7 @@
     function save() {
         localStorage.setItem('jm_p_feat', JSON.stringify(featured));
         localStorage.setItem('jm_p_gen', JSON.stringify(general));
+        localStorage.setItem('jm_p_labels', JSON.stringify(sectionLabels));
         render();
     }
 
@@ -310,6 +415,36 @@
         document.getElementById('modal').style.display = 'none';
         editTarget = null;
     }
+
+    // Drag & Drop
+    const dropZones = ['gridFeatured', 'gridGeneral', 'searchContainer'];
+    window.addEventListener('dragover', (e) => { e.preventDefault(); document.body.classList.add('dragging'); });
+    window.addEventListener('dragleave', (e) => { if (e.relatedTarget === null) document.body.classList.remove('dragging'); });
+
+    dropZones.forEach(id => {
+        const zone = document.getElementById(id);
+        zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('drag-over'); });
+        zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+        zone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            zone.classList.remove('drag-over');
+            document.body.classList.remove('dragging');
+            const data = e.dataTransfer.getData('text');
+            if (data) {
+                let name = "Nuevo Enlace";
+                let url = data;
+                const urlMatch = data.match(/https?:\/\/[^\s]+/);
+                if (urlMatch) {
+                    url = urlMatch[0];
+                    if (data.includes('\n')) name = data.split('\n')[0].trim().substring(0, 30);
+                    else { try { name = new URL(url).hostname.replace('www.', ''); } catch(e) {} }
+                }
+                if (id === 'gridFeatured') featured.push({ name, url });
+                else general.push({ name, url });
+                save();
+            }
+        });
+    });
 
     document.getElementById('toggleEdit').onclick = function() {
         isEditing = !isEditing;
@@ -330,7 +465,6 @@
         const name = document.getElementById('addName').value;
         const url = document.getElementById('addUrl').value;
         const type = document.getElementById('addType').value;
-        
         if(name && url) {
             if(editTarget) {
                 if(editTarget.type === 'feat') featured.splice(editTarget.idx, 1);
