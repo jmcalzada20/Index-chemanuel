@@ -3,294 +3,349 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Panel Inteligente - Jose Manuel</title>
+    <title>Padel Pro Arena - Jose Manuel</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
-            /* Paleta Clara y Moderna */
-            --bg-color: #f0f4f8;
-            --accent-primary: #6366f1;
-            --accent-secondary: #0ea5e9;
-            --glass-bg: rgba(255, 255, 255, 0.7);
-            --glass-border: rgba(0, 0, 0, 0.08);
-            --text-main: #1e293b;
-            --text-dim: #64748b;
-            --card-hover: #ffffff;
+            --padel-blue: #1b4f72; 
+            --padel-grass: #2874a6;
+            --padel-lines: rgba(255, 255, 255, 0.9);
+            --racket-color: #2c3e50;
+            --ball-color: #d4f804;
+            --glass-panel: rgba(255, 255, 255, 0.95);
+            --text-main: #1b2631;
+            --ai-purple: #8b5cf6;
+            --card-size: 160px;
         }
 
         body {
-            background-color: var(--bg-color);
-            /* Fondo animado sutil */
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.1) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(14, 165, 233, 0.1) 0px, transparent 50%);
-            background-attachment: fixed;
-            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-            color: var(--text-main);
             margin: 0;
-            padding: 20px 15px;
+            padding: 20px 10px;
             min-height: 100vh;
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--padel-blue);
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px),
+                radial-gradient(circle at center, var(--padel-grass) 0%, var(--padel-blue) 100%);
+            background-size: 20px 20px, 20px 20px, 100% 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 900px;
-            animation: fadeIn 0.8s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        h1 { 
-            font-weight: 500; 
-            font-size: 1.2rem; 
-            margin: 0; 
-            letter-spacing: 1px;
-            color: var(--text-dim);
-            text-transform: uppercase;
-        }
-
-        #clock { 
-            font-size: 4.5rem; 
-            font-weight: 800; 
-            margin: 5px 0;
-            background: linear-gradient(135deg, var(--text-main), var(--text-dim));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 4px 10px rgba(0,0,0,0.05));
-        }
-
-        /* Buscador Moderno Claro */
-        .search-area {
+            overflow-x: hidden;
             position: relative;
-            margin-bottom: 50px;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
         }
 
+        /* --- DECORACIÓN: PISTA --- */
+        .court-line { position: fixed; background: var(--padel-lines); z-index: 0; pointer-events: none; }
+        .line-v { width: 4px; height: 100vh; top: 0; left: 50%; transform: translateX(-50%); opacity: 0.5; }
+        .line-h { width: 100vw; height: 4px; top: 50%; left: 0; transform: translateY(-50%); opacity: 0.5; }
+        .net {
+            position: fixed; top: 50%; left: 0; width: 100vw; height: 40px;
+            background-image: radial-gradient(circle, #333 1px, transparent 1px);
+            background-size: 4px 4px; border-top: 2px solid white; border-bottom: 2px solid white;
+            transform: translateY(-50%); opacity: 0.2; z-index: 1;
+        }
+
+        .container { width: 100%; max-width: 1000px; z-index: 10; position: relative; }
+
+        header { text-align: center; margin-bottom: 20px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        #clock { font-size: 4.5rem; font-weight: 900; letter-spacing: -3px; margin: 0; line-height: 1; }
+        #greeting { font-size: 1.1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; }
+
+        /* BUSCADOR */
         .search-box {
-            width: 100%;
-            padding: 18px 25px;
-            border-radius: 24px;
-            border: 1px solid var(--glass-border);
-            background: var(--glass-bg);
-            backdrop-filter: blur(15px);
-            color: var(--text-main);
-            font-size: 1.1rem;
-            outline: none;
-            box-sizing: border-box;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            background: var(--glass-panel); backdrop-filter: blur(10px);
+            border-radius: 50px; padding: 10px 10px 10px 25px;
+            display: flex; align-items: center; margin-bottom: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
+        .search-box input { flex: 1; border: none; background: transparent; font-size: 1.1rem; outline: none; color: var(--text-main); }
 
-        .search-box:focus {
-            border-color: var(--accent-primary);
-            background: #ffffff;
-            box-shadow: 0 15px 35px rgba(99, 102, 241, 0.1);
-        }
-
-        /* Secciones */
+        /* GRID */
         .section-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-left: 10px;
+            color: white; font-weight: 800; font-size: 0.9rem; text-transform: uppercase;
+            letter-spacing: 2px; margin: 25px 0 15px 10px; display: flex; align-items: center; gap: 10px;
         }
-
-        .section-title {
-            font-size: 0.85rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--accent-primary);
-        }
-
-        /* Grids */
         .links-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-            margin-bottom: 40px;
+            grid-template-columns: repeat(auto-fill, minmax(var(--card-size), 1fr));
+            gap: 15px; justify-items: center;
         }
 
-        @media (min-width: 600px) {
-            .links-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
-        }
-
-        /* Tarjetas Estilo Glassmorphism Claro */
+        /* TARJETA */
         .link-card {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 24px 20px;
-            text-decoration: none;
-            color: var(--text-main);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            background: var(--glass-panel); border-radius: 25px; padding: 15px;
+            text-decoration: none; color: var(--text-main); width: 85%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 2px solid transparent; box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+            position: relative; aspect-ratio: 1/1.2;
         }
 
-        .link-card:hover {
-            transform: translateY(-8px);
-            background: var(--card-hover);
-            border-color: var(--accent-primary);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+        /* ESTILO PELOTA (PARA DESTACADOS) */
+        .ball-icon {
+            width: 70px; height: 70px; background: var(--ball-color);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            position: relative; margin-bottom: 12px; box-shadow: inset -5px -5px 15px rgba(0,0,0,0.2), 0 5px 10px rgba(0,0,0,0.3);
+            border: 2px solid #c0d804;
+        }
+        .ball-icon::after {
+            content: ""; position: absolute; inset: 5px; border: 2px solid rgba(255,255,255,0.5);
+            border-radius: 50%; clip-path: polygon(0 0, 100% 0, 100% 30%, 0 30%);
         }
 
-        .favicon-wrapper {
-            width: 54px;
-            height: 54px;
-            background: #ffffff;
-            border-radius: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 15px;
-            padding: 10px;
-            box-shadow: 0 8px 15px rgba(0,0,0,0.06);
-            border: 1px solid rgba(0,0,0,0.03);
+        /* ESTILO PALA (PARA GENERAL) */
+        .racket-icon-container {
+            position: relative; width: 75px; height: 100px;
+            display: flex; flex-direction: column; align-items: center; margin-bottom: 8px;
+        }
+        .racket-head {
+            width: 75px; height: 80px; background: var(--racket-color);
+            border-radius: 40% 40% 45% 45%; 
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.5), 0 5px 10px rgba(0,0,0,0.3);
+            position: relative; overflow: hidden; border: 2px solid #555;
+        }
+        .racket-head::after {
+            content: ""; position: absolute; inset: 10px;
+            background-image: radial-gradient(circle, #111 1.5px, transparent 1.5px);
+            background-size: 10px 10px; opacity: 0.4; pointer-events: none;
+        }
+        .racket-handle {
+            width: 12px; height: 20px; background: #34495e;
+            border-bottom-left-radius: 4px; border-bottom-right-radius: 4px;
+            border: 1px solid #111; margin-top: -2px;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.4);
         }
 
-        .favicon-wrapper img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
+        .icon-img { width: 32px; height: 32px; object-fit: contain; z-index: 2; border-radius: 6px; background: white; padding: 2px; }
 
-        .link-name {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: var(--text-main);
-        }
-
-        /* Controles */
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin-bottom: 30px;
-        }
-
-        .btn {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            color: var(--text-dim);
-            padding: 10px 20px;
-            border-radius: 14px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            font-weight: 500;
-            transition: 0.3s;
-        }
-
-        .btn:hover {
-            color: var(--accent-primary);
-            background: #ffffff;
-            border-color: var(--accent-primary);
-        }
-
-        /* Botón IA */
-        .ai-btn-quick {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            border: none;
-            width: 42px;
-            height: 42px;
-            border-radius: 15px;
-            color: white;
-            cursor: pointer;
-            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.2);
-            transition: 0.3s;
+        .link-title { 
+            font-weight: 800; font-size: 0.85rem; text-align: center; 
+            width: 100%; overflow: hidden; text-overflow: ellipsis; padding: 4px;
         }
         
-        .ai-btn-quick:hover {
-            transform: translateY(-50%) scale(1.05);
-            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+        /* CONTROLES EDICIÓN */
+        .edit-controls {
+            position: absolute; top: -5px; right: -5px; 
+            display: none; flex-direction: column; gap: 5px; z-index: 30;
         }
+        .editing .edit-controls { display: flex; }
+        .edit-btn {
+            background: #003a70; color: white; border: 2px solid white; width: 28px; height: 28px;
+            border-radius: 50%; cursor: pointer; display: flex; align-items: center;
+            justify-content: center; font-size: 14px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .btn-del { background: #ff4757; }
+
+        .actions { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 40px 0; }
+        .btn-action {
+            background: rgba(255,255,255,0.15); border: 2px solid white; color: white;
+            padding: 10px 20px; border-radius: 12px; font-weight: 800; cursor: pointer;
+            backdrop-filter: blur(5px);
+        }
+
+        #modal {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+            z-index: 1000; align-items: center; justify-content: center;
+        }
+        .modal-content { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 350px; color: #333; }
+        .modal-content input, .modal-content select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; }
     </style>
 </head>
-<body>
+<body id="padelBody">
 
-<div class="container">
-    <header>
-        <div id="clock">00:00</div>
-        <h1 id="greeting">Jose Manuel</h1>
-    </header>
+    <div class="court-line line-v"></div>
+    <div class="court-line line-h"></div>
+    <div class="net"></div>
 
-    <div class="search-area">
-        <form action="https://www.google.com/search" method="get">
-            <input type="text" name="q" id="mainSearch" class="search-box" placeholder="Buscar en la red..." autofocus>
-        </form>
-        <button class="ai-btn-quick" id="askAI" title="Consultar Gemini">✨</button>
+    <div class="container">
+        <header>
+            <div id="clock">00:00</div>
+            <div id="greeting">Jose Manuel - Padel Pro</div>
+        </header>
+
+        <div class="search-box">
+            <input type="text" id="mainSearch" placeholder="Buscar en la red...">
+            <button class="btn-action" style="background:var(--ai-purple); border:none; margin-left:10px;" id="askAI">IA</button>
+        </div>
+
+        <div class="section-header"><i data-lucide="award"></i> Destacados VIP (Pelotas)</div>
+        <div class="links-grid" id="gridFeatured"></div>
+
+        <div class="section-header"><i data-lucide="grid"></i> General (Palas)</div>
+        <div class="links-grid" id="gridGeneral"></div>
+
+        <div class="actions">
+            <button class="btn-action" id="openAdd">Añadir Marcador</button>
+            <button class="btn-action" id="toggleEdit" style="background:white; color:var(--padel-blue)">Editar Panel</button>
+        </div>
     </div>
 
-    <div class="section-header">
-        <span class="section-title">Terminal de Enlaces</span>
+    <div id="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle" style="margin:0">Nuevo Marcador</h3>
+            <input type="text" id="addName" placeholder="Nombre">
+            <input type="text" id="addUrl" placeholder="URL (ej. google.com)">
+            <select id="addType">
+                <option value="feat">Destacado VIP (Pelota)</option>
+                <option value="gen">General (Pala)</option>
+            </select>
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button class="btn-action" style="background:var(--padel-blue); border:none; flex:1" id="saveBtn">Guardar</button>
+                <button class="btn-action" style="color:#666; border-color:#ccc; flex:1" onclick="closeModal()">Cancelar</button>
+            </div>
+        </div>
     </div>
-
-    <div class="controls">
-        <button class="btn" id="toggleEdit">Configurar</button>
-        <button class="btn" id="openAddModal">Añadir +</button>
-    </div>
-
-    <div class="links-grid" id="mainGrid">
-        <!-- Los enlaces se cargan aquí -->
-    </div>
-</div>
 
 <script>
-    let links = JSON.parse(localStorage.getItem('jm_links_modern')) || [
-        { name: "Gemini", url: "https://gemini.google.com" },
-        { name: "Outlook", url: "https://outlook.cloud.microsoft/" },
-        { name: "WhatsApp", url: "https://web.whatsapp.com" },
-        { name: "YouTube", url: "https://www.youtube.com" },
-        { name: "Soporte", url: "https://acavalmadrid.sharepoint.com/sites/SISTEMAS-TEAMS/SitePages/Soporte%20a%20Usuarios.aspx" },
-        { name: "Google", url: "https://www.google.com" }
+    let isEditing = false;
+    let editTarget = null;
+    
+    let featured = JSON.parse(localStorage.getItem('jm_p_feat')) || [
+        { name: "Playtomic", url: "https://playtomic.io" },
+        { name: "Soporte", url: "https://acavalmadrid.sharepoint.com/sites/SISTEMAS-TEAMS" }
+    ];
+    let general = JSON.parse(localStorage.getItem('jm_p_gen')) || [
+        { name: "Gestor SAT", url: "https://sat.avalmadrid.es:9090/" },
+        { name: "Avalmadrid", url: "https://www.avalmadrid.es" },
+        { name: "WhatsApp", url: "https://web.whatsapp.com" }
     ];
 
     function render() {
-        const grid = document.getElementById('mainGrid');
-        grid.innerHTML = '';
-        links.forEach((link) => {
-            const domain = new URL(link.url).hostname;
-            const icon = `https://www.google.com/s2/favicons?sz=128&domain=${domain}`;
-            
-            const card = document.createElement('a');
-            card.className = 'link-card';
-            card.href = link.url;
-            card.target = "_blank";
-            card.innerHTML = `
-                <div class="favicon-wrapper"><img src="${icon}"></div>
-                <span class="link-name">${link.name}</span>
-            `;
-            grid.appendChild(card);
-        });
+        const fg = document.getElementById('gridFeatured');
+        const gg = document.getElementById('gridGeneral');
+        fg.innerHTML = ''; gg.innerHTML = '';
+        
+        document.getElementById('padelBody').className = isEditing ? 'editing' : '';
+        
+        featured.forEach((item, i) => fg.appendChild(createItem(item, i, 'feat')));
+        general.forEach((item, i) => gg.appendChild(createItem(item, i, 'gen')));
+        
+        lucide.createIcons();
     }
+
+    function createItem(item, idx, type) {
+        const wrap = document.createElement('div');
+        wrap.className = 'link-card';
+        
+        const finalUrl = item.url.startsWith('http') ? item.url : 'https://' + item.url;
+        let domain = "google.com";
+        try { domain = new URL(finalUrl).hostname; } catch(e) {}
+
+        const link = document.createElement('a');
+        link.href = isEditing ? "javascript:void(0)" : finalUrl; 
+        if(!isEditing) link.target = "_blank";
+        link.style.cssText = "text-decoration:none; color:inherit; display:flex; flex-direction:column; align-items:center; width:100%;";
+
+        // Elegir icono según tipo
+        if (type === 'feat') {
+            // DISEÑO PELOTA
+            link.innerHTML = `
+                <div class="ball-icon">
+                    <img class="icon-img" src="https://www.google.com/s2/favicons?sz=128&domain=${domain}" onerror="this.src='https://img.icons8.com/fluency/48/tennis.png'">
+                </div>
+            `;
+        } else {
+            // DISEÑO PALA
+            link.innerHTML = `
+                <div class="racket-icon-container">
+                    <div class="racket-head">
+                        <img class="icon-img" src="https://www.google.com/s2/favicons?sz=128&domain=${domain}" onerror="this.src='https://img.icons8.com/fluency/48/tennis.png'">
+                    </div>
+                    <div class="racket-handle"></div>
+                </div>
+            `;
+        }
+
+        const title = document.createElement('div');
+        title.className = 'link-title';
+        title.innerText = item.name;
+        if(isEditing) {
+            title.contentEditable = true;
+            title.onblur = () => { item.name = title.innerText; save(); };
+        }
+        link.appendChild(title);
+        wrap.appendChild(link);
+
+        const ctrl = document.createElement('div');
+        ctrl.className = 'edit-controls';
+
+        const del = document.createElement('button');
+        del.className = 'edit-btn btn-del';
+        del.innerHTML = '×';
+        del.onclick = () => {
+            if(type === 'feat') featured.splice(idx, 1);
+            else general.splice(idx, 1);
+            save();
+        };
+
+        const ed = document.createElement('button');
+        ed.className = 'edit-btn';
+        ed.innerHTML = '✎';
+        ed.onclick = () => {
+            editTarget = { type, idx };
+            document.getElementById('modalTitle').innerText = "Editar Enlace";
+            document.getElementById('addName').value = item.name;
+            document.getElementById('addUrl').value = item.url;
+            document.getElementById('addType').value = type;
+            document.getElementById('modal').style.display = 'flex';
+        };
+
+        ctrl.appendChild(del);
+        ctrl.appendChild(ed);
+        wrap.appendChild(ctrl);
+
+        return wrap;
+    }
+
+    function save() {
+        localStorage.setItem('jm_p_feat', JSON.stringify(featured));
+        localStorage.setItem('jm_p_gen', JSON.stringify(general));
+        render();
+    }
+
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+        editTarget = null;
+    }
+
+    document.getElementById('toggleEdit').onclick = function() {
+        isEditing = !isEditing;
+        this.innerText = isEditing ? "Finalizar" : "Editar Panel";
+        this.style.background = isEditing ? "#ffd32a" : "white";
+        this.style.color = isEditing ? "black" : "var(--padel-blue)";
+        render();
+    };
+
+    document.getElementById('openAdd').onclick = () => {
+        document.getElementById('modalTitle').innerText = "Nuevo Marcador";
+        document.getElementById('addName').value = '';
+        document.getElementById('addUrl').value = '';
+        document.getElementById('modal').style.display = 'flex';
+    };
+
+    document.getElementById('saveBtn').onclick = () => {
+        const name = document.getElementById('addName').value;
+        const url = document.getElementById('addUrl').value;
+        const type = document.getElementById('addType').value;
+        
+        if(name && url) {
+            if(editTarget) {
+                if(editTarget.type === 'feat') featured.splice(editTarget.idx, 1);
+                else general.splice(editTarget.idx, 1);
+            }
+            if(type === 'feat') featured.push({name, url});
+            else general.push({name, url});
+            save();
+            closeModal();
+        }
+    };
 
     function updateTime() {
         const now = new Date();
         document.getElementById('clock').innerText = now.toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit'});
-        
-        const hour = now.getHours();
-        let greet = "Buenos días";
-        if(hour >= 13) greet = "Buenas tardes";
-        if(hour >= 21) greet = "Buenas noches";
-        document.getElementById('greeting').innerText = `${greet}, Jose Manuel`;
     }
 
     setInterval(updateTime, 1000);
