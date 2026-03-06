@@ -60,8 +60,23 @@
             color: white; font-weight: 800; font-size: 0.9rem; text-transform: uppercase;
             letter-spacing: 2px; margin: 25px 0 15px 10px; display: flex; align-items: center; gap: 10px;
         }
-        .section-header span { outline: none; padding: 2px 5px; border-radius: 4px; }
-        .editing .section-header span { background: rgba(255,255,255,0.2); cursor: text; }
+        
+        .section-header span { 
+            outline: none; 
+            padding: 4px 10px; 
+            border-radius: 8px; 
+            transition: background 0.3s;
+            border: 1px solid transparent;
+        }
+        .editing .section-header span { 
+            background: rgba(255,255,255,0.2); 
+            cursor: text; 
+            border: 1px dashed rgba(255,255,255,0.5);
+        }
+        .editing .section-header span:focus {
+            background: rgba(255,255,255,0.3);
+            border: 1px solid white;
+        }
 
         .links-grid {
             display: grid;
@@ -84,7 +99,6 @@
         }
         .link-card:active { cursor: grabbing; }
         .link-card.dragging { opacity: 0.3; transform: scale(0.9); border: 2px dashed var(--padel-blue); }
-        .link-card:hover:not(.dragging) { transform: translateY(-5px); }
 
         .ball-icon {
             width: 70px; height: 70px; background: var(--ball-color);
@@ -92,10 +106,11 @@
             position: relative; margin-bottom: 12px; 
             box-shadow: inset -4px -6px 12px rgba(0,0,0,0.2), 0 5px 10px rgba(0,0,0,0.2);
             pointer-events: none;
+            overflow: hidden;
         }
         .ball-icon .seam { position: absolute; width: 110%; height: 110%; border: 2px solid rgba(255, 255, 255, 0.8); border-radius: 50%; pointer-events: none; }
-        .ball-icon .seam-1 { top: -50%; left: -10%; transform: rotate(15deg); }
-        .ball-icon .seam-2 { bottom: -50%; right: -10%; transform: rotate(15deg); }
+        .ball-icon .seam-1 { top: -55%; left: -15%; transform: rotate(15deg); }
+        .ball-icon .seam-2 { bottom: -55%; right: -15%; transform: rotate(15deg); }
 
         .racket-icon-container { position: relative; width: 70px; height: 90px; display: flex; flex-direction: column; align-items: center; margin-bottom: 8px; pointer-events: none; }
         .racket-head { width: 70px; height: 70px; background: var(--racket-color); border-radius: 40% 40% 45% 45%; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); position: relative; border: 2px solid #444; }
@@ -119,15 +134,6 @@
 
         .drop-hint { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--ball-color); color: var(--padel-blue); padding: 12px 30px; border-radius: 30px; font-weight: 900; display: none; z-index: 1000; box-shadow: 0 10px 25px rgba(0,0,0,0.4); border: 2px solid white; pointer-events: none; }
         body.dragging-external .drop-hint { display: block; }
-
-        /* Estilo para el marcador de posición al arrastrar */
-        .drop-placeholder {
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px dashed rgba(255, 255, 255, 0.4);
-            border-radius: 25px;
-            width: 85%;
-            aspect-ratio: 1/1.2;
-        }
     </style>
 </head>
 <body id="padelBody">
@@ -143,24 +149,24 @@
         </header>
 
         <div class="search-box" id="dropAreaSearch">
-            <input type="text" id="mainSearch" placeholder="Busca o arrastra aquí un enlace para guardar...">
+            <input type="text" id="mainSearch" placeholder="Busca o arrastra aquí un enlace...">
         </div>
 
         <div class="section-header">
             <i data-lucide="award"></i> 
-            <span id="labelFeatured">Destacados VIP</span>
+            <span id="labelFeatured" spellcheck="false">Destacados VIP</span>
         </div>
         <div class="links-grid" id="gridFeatured" data-type="feat"></div>
 
         <div class="section-header">
             <i data-lucide="grid"></i> 
-            <span id="labelGeneral">General</span>
+            <span id="labelGeneral" spellcheck="false">General</span>
         </div>
         <div class="links-grid" id="gridGeneral" data-type="gen"></div>
 
         <div class="actions">
             <button class="btn-action" id="openAdd">Añadir Marcador</button>
-            <button class="btn-action" id="toggleEdit" style="background:white; color:var(--padel-blue)">Editar Panel</button>
+            <button class="btn-action" id="toggleEdit">Editar Panel</button>
         </div>
     </div>
 
@@ -171,8 +177,7 @@
             <input type="text" id="addName" placeholder="Nombre">
             <input type="text" id="addUrl" placeholder="URL">
             <select id="addType">
-                <option value="feat">Destacado VIP (Pelota)</option>
-                <option value="gen">General (Pala)</option>
+                <!-- Las opciones se generan dinámicamente -->
             </select>
             <div style="display:flex; gap:10px; margin-top:15px;">
                 <button class="btn-action" style="background:var(--padel-blue); border:none; flex:1" id="saveBtn">Guardar</button>
@@ -184,7 +189,7 @@
 <script>
     let isEditing = false;
     let editTarget = null;
-    let draggedElement = null; // El elemento DOM que se está arrastrando
+    let draggedElement = null;
     
     let featured = JSON.parse(localStorage.getItem('jm_p_feat')) || [
         { name: "Playtomic", url: "https://playtomic.io" },
@@ -192,8 +197,7 @@
     ];
     let general = JSON.parse(localStorage.getItem('jm_p_gen')) || [
         { name: "Gestor SAT", url: "https://sat.avalmadrid.es:9090/" },
-        { name: "Avalmadrid", url: "https://www.avalmadrid.es" },
-        { name: "WhatsApp", url: "https://web.whatsapp.com" }
+        { name: "Avalmadrid", url: "https://www.avalmadrid.es" }
     ];
     let sectionLabels = JSON.parse(localStorage.getItem('jm_p_labels')) || { feat: "Destacados VIP", gen: "General" };
 
@@ -205,7 +209,7 @@
         document.getElementById('labelFeatured').innerText = sectionLabels.feat;
         document.getElementById('labelGeneral').innerText = sectionLabels.gen;
 
-        document.getElementById('padelBody').className = isEditing ? 'editing' : '';
+        document.getElementById('padelBody').classList.toggle('editing', isEditing);
         document.getElementById('labelFeatured').contentEditable = isEditing;
         document.getElementById('labelGeneral').contentEditable = isEditing;
 
@@ -214,6 +218,14 @@
         
         lucide.createIcons();
         setupDragEvents();
+    }
+
+    function syncModalSelect() {
+        const select = document.getElementById('addType');
+        select.innerHTML = `
+            <option value="feat">${sectionLabels.feat} (Pelota)</option>
+            <option value="gen">${sectionLabels.gen} (Pala)</option>
+        `;
     }
 
     function createItem(item, idx, type) {
@@ -227,29 +239,22 @@
         let domain = "google.com";
         try { domain = new URL(finalUrl).hostname; } catch(e) {}
 
-        const link = document.createElement('a');
-        link.href = isEditing ? "javascript:void(0)" : finalUrl; 
-        if(!isEditing) link.target = "_blank";
-        link.style.cssText = "text-decoration:none; color:inherit; display:flex; flex-direction:column; align-items:center; width:100%; pointer-events: none;";
-
         const iconSrc = `https://www.google.com/s2/favicons?sz=128&domain=${domain}`;
         const fallback = "https://img.icons8.com/fluency/48/tennis.png";
 
         if (type === 'feat') {
-            link.innerHTML = `<div class="ball-icon"><div class="seam seam-1"></div><div class="seam seam-2"></div><img class="icon-img" src="${iconSrc}" onerror="this.src='${fallback}'"></div>`;
+            wrap.innerHTML = `<div class="ball-icon"><div class="seam seam-1"></div><div class="seam seam-2"></div><img class="icon-img" src="${iconSrc}" onerror="this.src='${fallback}'"></div>`;
         } else {
-            link.innerHTML = `<div class="racket-icon-container"><div class="racket-head"><img class="icon-img" src="${iconSrc}" onerror="this.src='${fallback}'"></div><div class="racket-handle"></div></div>`;
+            wrap.innerHTML = `<div class="racket-icon-container"><div class="racket-head"><img class="icon-img" src="${iconSrc}" onerror="this.src='${fallback}'"></div><div class="racket-handle"></div></div>`;
         }
 
         const title = document.createElement('div');
         title.className = 'link-title';
         title.innerText = item.name;
-        link.appendChild(title);
-        wrap.appendChild(link);
+        wrap.appendChild(title);
 
         const ctrl = document.createElement('div');
         ctrl.className = 'edit-controls';
-        ctrl.style.pointerEvents = "auto";
         
         const del = document.createElement('button');
         del.className = 'edit-btn btn-del'; del.innerHTML = '×';
@@ -259,6 +264,7 @@
         ed.className = 'edit-btn'; ed.innerHTML = '✎';
         ed.onclick = (e) => {
             e.stopPropagation(); editTarget = { type, idx };
+            syncModalSelect();
             document.getElementById('modalTitle').innerText = "Editar Marcador";
             document.getElementById('addName').value = item.name;
             document.getElementById('addUrl').value = item.url;
@@ -269,46 +275,31 @@
         ctrl.appendChild(del); ctrl.appendChild(ed);
         wrap.appendChild(ctrl);
         
-        // Habilitar clics en modo no-edición
         wrap.onclick = () => { if(!isEditing) window.open(finalUrl, '_blank'); };
 
         return wrap;
     }
 
     function setupDragEvents() {
-        const cards = document.querySelectorAll('.link-card');
         const grids = document.querySelectorAll('.links-grid');
-        const searchBox = document.getElementById('dropAreaSearch');
 
-        cards.forEach(card => {
-            card.addEventListener('dragstart', (e) => {
-                draggedElement = card;
-                card.classList.add('dragging');
-                e.dataTransfer.effectAllowed = 'move';
-                e.dataTransfer.setData('text/plain', 'internal');
-            });
-
-            card.addEventListener('dragend', () => {
-                card.classList.remove('dragging');
-                draggedElement = null;
-                document.body.classList.remove('dragging-external');
-                grids.forEach(g => g.classList.remove('drag-over'));
-            });
-        });
+        // Escuchar cuando algo entra en la ventana para mostrar el mensaje de "soltar"
+        window.ondragover = (e) => {
+            e.preventDefault();
+            if (!draggedElement) document.body.classList.add('dragging-external');
+        };
+        window.ondragleave = (e) => {
+            if (e.relatedTarget === null) document.body.classList.remove('dragging-external');
+        };
 
         grids.forEach(grid => {
             grid.addEventListener('dragover', (e) => {
                 e.preventDefault();
                 grid.classList.add('drag-over');
-                
-                // Lógica de reordenación visual (antes de soltar)
                 if (draggedElement) {
                     const afterElement = getDragAfterElement(grid, e.clientX, e.clientY);
-                    if (afterElement == null) {
-                        grid.appendChild(draggedElement);
-                    } else {
-                        grid.insertBefore(draggedElement, afterElement);
-                    }
+                    if (afterElement == null) grid.appendChild(draggedElement);
+                    else grid.insertBefore(draggedElement, afterElement);
                 }
             });
 
@@ -317,108 +308,73 @@
             grid.addEventListener('drop', (e) => {
                 e.preventDefault();
                 grid.classList.remove('drag-over');
-                
-                const targetType = grid.dataset.type;
+                document.body.classList.remove('dragging-external');
 
-                // Caso 1: Arrastre interno (reordenar o cambiar sección)
                 if (draggedElement) {
                     rebuildDataFromDOM();
                     save();
-                } 
-                // Caso 2: Arrastre externo (URL del navegador)
-                else {
-                    const url = e.dataTransfer.getData('text');
-                    if (url && (url.startsWith('http') || url.includes('.'))) {
-                        const name = url.split('/')[2] || "Nuevo enlace";
-                        const list = targetType === 'feat' ? featured : general;
-                        list.push({ name, url });
-                        save();
+                } else {
+                    // Manejo mejorado para soltar enlaces externos
+                    let url = e.dataTransfer.getData('text/uri-list') || e.dataTransfer.getData('text/plain');
+                    
+                    if (url) {
+                        // Limpiar por si vienen múltiples URLs (uri-list suele traer varias separadas por saltos de línea)
+                        url = url.split('\n')[0].trim();
+                        
+                        if (url.startsWith('http') || url.includes('.')) {
+                            let name = "Nuevo Enlace";
+                            try {
+                                const urlObj = new URL(url.startsWith('http') ? url : 'https://' + url);
+                                name = urlObj.hostname.replace('www.', '');
+                            } catch(err) {}
+
+                            const list = grid.dataset.type === 'feat' ? featured : general;
+                            list.push({ name, url });
+                            save();
+                        }
                     }
                 }
             });
         });
 
-        // Búsqueda para soltar externos
-        searchBox.addEventListener('dragover', (e) => { e.preventDefault(); searchBox.classList.add('drag-over'); });
-        searchBox.addEventListener('dragleave', () => searchBox.classList.remove('drag-over'));
-        searchBox.addEventListener('drop', (e) => {
-            e.preventDefault();
-            searchBox.classList.remove('drag-over');
-            const url = e.dataTransfer.getData('text');
-            if (url && (url.startsWith('http') || url.includes('.'))) {
-                general.push({ name: url.split('/')[2] || "Nuevo", url });
-                save();
-            }
-        });
-
-        // Detectar arrastre externo sobre el body
-        window.addEventListener('dragenter', (e) => {
-            if (!draggedElement) document.body.classList.add('dragging-external');
+        // Eventos para los elementos que ya existen (ordenar)
+        document.querySelectorAll('.link-card').forEach(card => {
+            card.addEventListener('dragstart', (e) => {
+                draggedElement = card;
+                card.classList.add('dragging');
+            });
+            card.addEventListener('dragend', () => {
+                card.classList.remove('dragging');
+                draggedElement = null;
+            });
         });
     }
 
-    // Función para encontrar el elemento después del cual se debe insertar el arrastrado
     function getDragAfterElement(container, x, y) {
         const draggableElements = [...container.querySelectorAll('.link-card:not(.dragging)')];
-
         return draggableElements.reduce((closest, child) => {
             const box = child.getBoundingClientRect();
-            // Calculamos distancia al centro del elemento para mayor precisión en grids
             const offsetX = x - box.left - box.width / 2;
             const offsetY = y - box.top - box.height / 2;
-            
-            // Priorizamos vertical, luego horizontal
-            if (Math.abs(offsetY) < box.height / 2 && Math.abs(offsetX) < box.width / 2) {
-                 return { offset: 0, element: child };
-            }
-            
             const distance = Math.sqrt(offsetX*offsetX + offsetY*offsetY);
-
-            if (distance < closest.offset) {
-                return { offset: distance, element: child };
-            } else {
-                return closest;
-            }
+            if (distance < closest.offset) return { offset: distance, element: child };
+            else return closest;
         }, { offset: Number.POSITIVE_INFINITY }).element;
     }
 
-    // Sincroniza los arrays de datos con el orden visual actual del DOM
     function rebuildDataFromDOM() {
-        const newFeatured = [];
-        const newGeneral = [];
-
+        const newFeat = [];
+        const newGen = [];
         document.querySelectorAll('#gridFeatured .link-card').forEach(card => {
-            const oldType = card.dataset.type;
-            const oldIdx = card.dataset.index;
-            const item = oldType === 'feat' ? featured[oldIdx] : general[oldIdx];
-            if (item) newFeatured.push(item);
+            const item = card.dataset.type === 'feat' ? featured[card.dataset.index] : general[card.dataset.index];
+            if(item) newFeat.push(item);
         });
-
         document.querySelectorAll('#gridGeneral .link-card').forEach(card => {
-            const oldType = card.dataset.type;
-            const oldIdx = card.dataset.index;
-            const item = oldType === 'feat' ? featured[oldIdx] : general[oldIdx];
-            if (item) newGeneral.push(item);
+            const item = card.dataset.type === 'feat' ? featured[card.dataset.index] : general[card.dataset.index];
+            if(item) newGen.push(item);
         });
-
-        featured = newFeatured;
-        general = newGeneral;
+        featured = newFeat; general = newGen;
     }
-
-    document.getElementById('mainSearch').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            const val = e.target.value.trim();
-            if (!val) return;
-            if (val.includes('.') && !val.includes(' ')) {
-                window.open(val.startsWith('http') ? val : 'https://' + val, '_blank');
-            } else {
-                window.open(`https://www.google.com/search?q=${encodeURIComponent(val)}`, '_blank');
-            }
-        }
-    });
-
-    document.getElementById('labelFeatured').onblur = function() { sectionLabels.feat = this.innerText; save(); };
-    document.getElementById('labelGeneral').onblur = function() { sectionLabels.gen = this.innerText; save(); };
 
     function save() {
         localStorage.setItem('jm_p_feat', JSON.stringify(featured));
@@ -427,17 +383,33 @@
         render();
     }
 
-    function closeModal() { document.getElementById('modal').style.display = 'none'; editTarget = null; }
+    document.getElementById('labelFeatured').addEventListener('blur', function() {
+        sectionLabels.feat = this.innerText;
+        save();
+    });
+    document.getElementById('labelGeneral').addEventListener('blur', function() {
+        sectionLabels.gen = this.innerText;
+        save();
+    });
 
     document.getElementById('toggleEdit').onclick = function() {
         isEditing = !isEditing;
         this.innerText = isEditing ? "Finalizar" : "Editar Panel";
-        this.style.background = isEditing ? "var(--ball-color)" : "white";
-        this.style.color = isEditing ? "var(--padel-blue)" : "var(--padel-blue)";
+        this.style.background = isEditing ? "var(--ball-color)" : "rgba(255,255,255,0.15)";
+        this.style.color = isEditing ? "var(--padel-blue)" : "white";
         render();
     };
 
+    document.getElementById('mainSearch').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const val = e.target.value.trim();
+            if (val.includes('.') && !val.includes(' ')) window.open(val.startsWith('http') ? val : 'https://' + val, '_blank');
+            else window.open(`https://www.google.com/search?q=${encodeURIComponent(val)}`, '_blank');
+        }
+    });
+
     document.getElementById('openAdd').onclick = () => {
+        syncModalSelect();
         document.getElementById('modalTitle').innerText = "Nuevo Marcador";
         document.getElementById('addName').value = '';
         document.getElementById('addUrl').value = '';
@@ -458,6 +430,8 @@
             save(); closeModal();
         }
     };
+
+    function closeModal() { document.getElementById('modal').style.display = 'none'; editTarget = null; }
 
     function updateTime() {
         const now = new Date();
