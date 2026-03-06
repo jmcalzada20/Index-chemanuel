@@ -3,147 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Panel Inteligente - Jose Manuel</title>
+    <title>Panel de Jose Manuel</title>
     <style>
         :root {
-            --bg-gradient: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-            --glass-bg: rgba(255, 255, 255, 0.1);
-            --glass-border: rgba(255, 255, 255, 0.2);
-            --accent-color: #00d2ff;
-            --text-main: #ffffff;
-            --highlight-bg: rgba(0, 210, 255, 0.15);
-            --ai-accent: #8e44ad;
+            /* Colores Modernos y Claros */
+            --bg-page: #f0f4f8;
+            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --accent-color: #007bff;
+            --text-main: #2d3436;
+            --text-dim: #636e72;
+            --highlight-bg: rgba(0, 123, 255, 0.1);
+            --ai-accent: #6c5ce7;
         }
 
         body {
             background: var(--bg-gradient);
             background-attachment: fixed;
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             color: var(--text-main);
             margin: 0;
-            padding: 20px 15px; /* Reducido para móviles */
+            padding: 20px 15px;
             min-height: 100vh;
-            -webkit-tap-highlight-color: transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
+            width: 100%;
+            max-width: 900px;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 35px;
         }
 
-        h1 { font-weight: 300; font-size: 1.8rem; margin: 0; }
-        #clock { opacity: 0.7; font-size: 0.9rem; margin-top: 5px; }
+        h1 { 
+            font-weight: 600; 
+            font-size: 1.6rem; 
+            margin: 0; 
+            color: var(--text-main);
+        }
 
+        #clock { 
+            font-size: 3.5rem; 
+            font-weight: 700; 
+            margin: 5px 0;
+            color: var(--accent-color);
+            letter-spacing: -1px;
+        }
+
+        /* Buscador Moderno */
         .search-area {
+            position: relative;
             max-width: 600px;
-            margin: 0 auto 25px;
+            margin: 0 auto 40px;
             display: flex;
-            gap: 8px;
+            gap: 10px;
         }
 
         .search-box {
-            flex-grow: 1;
-            padding: 12px 20px;
-            border-radius: 25px;
+            width: 100%;
+            padding: 15px 25px;
+            border-radius: 30px;
             border: 1px solid var(--glass-border);
             background: var(--glass-bg);
             backdrop-filter: blur(10px);
-            color: white;
-            font-size: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            color: var(--text-main);
+            font-size: 1.1rem;
             outline: none;
-            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus {
+            background: #fff;
+            border-color: var(--accent-color);
+            box-shadow: 0 10px 30px rgba(0,123,255,0.1);
         }
 
         .ai-btn-quick {
             background: var(--ai-accent);
             border: none;
             border-radius: 50%;
-            width: 45px;
-            height: 45px;
+            width: 50px;
+            height: 50px;
+            color: white;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.3);
             flex-shrink: 0;
         }
 
+        /* Secciones */
         .section-header {
             display: flex;
             align-items: center;
-            margin-bottom: 15px;
-            border-bottom: 1px solid var(--glass-border);
+            margin-bottom: 20px;
+            border-bottom: 2px solid rgba(0,0,0,0.05);
             padding-bottom: 8px;
         }
 
         .section-title {
-            font-size: 0.75rem;
+            font-size: 0.85rem;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            opacity: 0.7;
-            flex-grow: 1;
+            letter-spacing: 2px;
+            color: var(--text-dim);
         }
 
-        /* Grids Adaptativos */
-        .featured-grid, .links-grid {
-            display: grid;
-            gap: 12px;
-            margin-bottom: 35px;
-        }
-
-        /* En móvil: 2 columnas, en escritorio: 4 o más */
-        .featured-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-
+        /* Grid de Enlaces */
         .links-grid {
+            display: grid;
             grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 40px;
         }
 
         @media (min-width: 600px) {
-            .featured-grid { grid-template-columns: repeat(4, 1fr); }
-            .links-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
-            h1 { font-size: 2.5rem; }
+            .links-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
         }
 
-        /* Cards táctiles */
+        /* Tarjetas de Enlace */
         .link-card {
-            position: relative;
             background: var(--glass-bg);
-            backdrop-filter: blur(15px);
             border: 1px solid var(--glass-border);
-            border-radius: 18px;
-            padding: 15px;
-            text-align: center;
+            border-radius: 20px;
+            padding: 20px;
             text-decoration: none;
-            color: white;
+            color: var(--text-main);
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100px;
-            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
         }
 
-        .featured-grid .link-card {
-            background: var(--highlight-bg);
+        .link-card:hover {
+            transform: translateY(-5px);
+            background: #fff;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08);
             border-color: var(--accent-color);
         }
 
         .favicon-wrapper {
-            width: 40px;
-            height: 40px;
-            background: white;
-            border-radius: 10px;
+            width: 50px;
+            height: 50px;
+            background: #f8f9fa;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 10px;
-            padding: 6px;
+            margin-bottom: 12px;
+            padding: 10px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
         }
 
         .favicon-wrapper img {
@@ -153,153 +178,92 @@
         }
 
         .link-name {
-            font-size: 0.85rem;
-            font-weight: 500;
-            width: 100%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            font-size: 0.95rem;
+            font-weight: 600;
         }
 
-        /* Botones de acción más grandes para dedos */
-        .card-actions {
-            position: absolute;
-            top: -10px;
-            right: -5px;
-            display: none;
-            gap: 4px;
-            z-index: 10;
-        }
-
-        .editing .card-actions { display: flex; }
-
-        .action-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            border: 2px solid #000;
-            color: white;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .del-btn { background: #e74c3c; }
-        .edit-btn { background: #3498db; }
-        .move-btn { background: #f39c12; }
-
+        /* Controles */
         .controls {
             display: flex;
-            flex-wrap: wrap;
             justify-content: center;
-            gap: 8px;
-            margin-bottom: 20px;
+            gap: 10px;
+            margin-bottom: 25px;
         }
 
         .btn {
-            padding: 10px 12px;
-            border-radius: 10px;
+            background: white;
             border: 1px solid var(--glass-border);
-            background: var(--glass-bg);
-            color: white;
-            font-size: 0.8rem;
+            color: var(--text-dim);
+            padding: 8px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: 0.3s;
         }
 
-        /* Modal responsivo */
-        #modal {
+        .btn:hover {
+            color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        #aiPanel {
             display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background: #1a2a3a;
+            background: #fff;
+            border: 1px solid var(--ai-accent);
             padding: 20px;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 400px;
-        }
-
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 12px;
-            margin-top: 5px;
-            border-radius: 8px;
-            background: #0d1a26;
-            color: white;
-            border: 1px solid #333;
-            font-size: 16px; /* Evita zoom automático en iOS */
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(108, 92, 231, 0.1);
         }
     </style>
 </head>
-<body id="mainBody">
+<body>
 
-<div class="container" id="appContainer">
+<div class="container">
     <header>
-        <h1 id="greeting">Hola, Jose Manuel</h1>
-        <div id="clock">...</div>
+        <div id="clock">00:00</div>
+        <h1 id="greeting">Buenos días, Jose Manuel</h1>
     </header>
 
     <div class="search-area">
-        <form action="https://www.google.com/search" method="get" style="flex-grow:1; display:flex;">
-            <input type="text" name="q" id="mainSearch" class="search-box" placeholder="Buscar..." autofocus>
+        <form action="https://www.google.com/search" method="get" style="flex:1">
+            <input type="text" name="q" id="mainSearch" class="search-box" placeholder="¿Qué estás buscando?" autofocus>
         </form>
-        <button class="ai-btn-quick" id="askAI">✨</button>
+        <button class="ai-btn-quick" id="askAI" title="Preguntar a IA">✨</button>
     </div>
 
-    <div id="aiPanel" style="display:none; background: rgba(142, 68, 173, 0.2); padding: 15px; border-radius: 15px; margin-bottom: 20px;">
-        <div id="aiContent" style="font-size: 0.9rem;"></div>
+    <div id="aiPanel">
+        <div style="font-weight: 800; color: var(--ai-accent); margin-bottom: 10px; font-size: 0.8rem; text-transform: uppercase;">Respuesta de IA</div>
+        <div id="aiContent" style="font-size: 1rem; line-height: 1.5;"></div>
     </div>
-
-    <div class="section-header">
-        <span class="section-title">Destacados</span>
-    </div>
-    <div class="featured-grid" id="featuredContainer"></div>
 
     <div class="section-header">
-        <span class="section-title">Accesos Directos</span>
+        <span class="section-title">Accesos Rápidos</span>
     </div>
+
     <div class="controls">
-        <button class="btn" id="toggleEdit">Editar</button>
-        <button class="btn" id="openAddModal" style="background: #27ae60;">Nuevo +</button>
+        <button class="btn" id="toggleEdit">Organizar</button>
+        <button class="btn" id="openAddModal" style="background: #e1f5fe; color: #01579b; border: none;">Añadir Enlace +</button>
     </div>
-    <div class="links-grid" id="linksContainer"></div>
-</div>
 
-<div id="modal">
-    <div class="modal-content">
-        <h3 id="modalTitle">Nuevo Enlace</h3>
-        <input type="hidden" id="editIndex">
-        <input type="hidden" id="editType">
-        <div class="form-group">
-            <label>Nombre</label>
-            <input type="text" id="siteName">
-        </div>
-        <div class="form-group">
-            <label>URL</label>
-            <input type="text" id="siteUrl">
-        </div>
-        <div class="form-group">
-            <label>Ubicación</label>
-            <select id="siteTarget">
-                <option value="general">General</option>
-                <option value="featured">Destacado</option>
-            </select>
-        </div>
-        <div style="display:flex; gap:10px; margin-top:20px">
-            <button class="btn" style="flex:1" id="closeModal">Cerrar</button>
-            <button class="btn" style="flex:1; background:#27ae60" id="saveBtn">Guardar</button>
-        </div>
+    <div class="links-grid" id="mainGrid">
+        <!-- Los enlaces se inyectan mediante JS -->
     </div>
 </div>
 
 <script>
-    const apiKey = ""; 
+    // Lista de enlaces con WhatsApp Web incluido
+    let links = JSON.parse(localStorage.getItem('jm_links_light')) || [
+        { name: "WhatsApp", url: "https://web.whatsapp.com" },
+        { name: "Gemini AI", url: "https://gemini.google.com" },
+        { name: "Outlook", url: "https://outlook.cloud.microsoft/" },
+        { name: "Soporte", url: "https://acavalmadrid.sharepoint.com/sites/SISTEMAS-TEAMS/SitePages/Soporte%20a%20Usuarios.aspx" },
+        { name: "Google", url: "https://www.google.com" },
+        { name: "YouTube", url: "https://www.youtube.com" }
+    ];
+
+    const apiKey = ""; // La clave se inyecta en el entorno de ejecución
 
     async function callGemini(prompt) {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
@@ -310,101 +274,51 @@
                 body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
             });
             const data = await response.json();
-            return data.candidates?.[0]?.content?.parts?.[0]?.text || "Sin respuesta";
-        } catch (e) { return "Error IA"; }
+            return data.candidates?.[0]?.content?.parts?.[0]?.text || "No pude obtener una respuesta.";
+        } catch (e) { return "Error de conexión con la IA."; }
     }
-
-    let featured = JSON.parse(localStorage.getItem('jm_featured')) || [
-        { name: "Gemini", url: "https://gemini.google.com" },
-        { name: "Google", url: "https://www.google.com" },
-        { name: "Maps", url: "https://www.google.com/maps" },
-        { name: "YouTube", url: "https://www.youtube.com" }
-    ];
-    let general = JSON.parse(localStorage.getItem('jm_general')) || [
-        { name: "Outlook", url: "https://outlook.cloud.microsoft/" },
-        { name: "Soporte", url: "https://acavalmadrid.sharepoint.com/sites/SISTEMAS-TEAMS/SitePages/Soporte%20a%20Usuarios.aspx" },
-        { name: "WhatsApp", url: "https://web.whatsapp.com" }
-    ];
-    let isEditing = false;
 
     function render() {
-        renderGrid('featuredContainer', featured, 'featured');
-        renderGrid('linksContainer', general, 'general');
-        document.getElementById('appContainer').className = isEditing ? 'container editing' : 'container';
-    }
-
-    function renderGrid(id, data, type) {
-        const el = document.getElementById(id);
-        el.innerHTML = '';
-        data.forEach((link, index) => {
+        const grid = document.getElementById('mainGrid');
+        grid.innerHTML = '';
+        links.forEach((link, index) => {
             const domain = new URL(link.url).hostname;
             const icon = `https://www.google.com/s2/favicons?sz=128&domain=${domain}`;
-            const card = document.createElement('div');
+            
+            const card = document.createElement('a');
             card.className = 'link-card';
+            card.href = link.url;
+            card.target = "_blank";
             card.innerHTML = `
-                <div class="card-actions">
-                    <button class="action-btn move-btn" onclick="moveItem('${type}', ${index})">${type==='featured'?'↓':'↑'}</button>
-                    <button class="action-btn del-btn" onclick="deleteItem('${type}', ${index})">✕</button>
-                </div>
-                <a href="${link.url}" target="_blank" style="text-decoration:none; color:inherit; display:flex; flex-direction:column; align-items:center;">
-                    <div class="favicon-wrapper"><img src="${icon}"></div>
-                    <span class="link-name">${link.name}</span>
-                </a>
+                <div class="favicon-wrapper"><img src="${icon}"></div>
+                <span class="link-name">${link.name}</span>
             `;
-            el.appendChild(card);
+            grid.appendChild(card);
         });
     }
-
-    window.moveItem = (type, index) => {
-        const item = type === 'featured' ? featured.splice(index, 1)[0] : general.splice(index, 1)[0];
-        type === 'featured' ? general.push(item) : featured.push(item);
-        save();
-    };
-
-    window.deleteItem = (type, index) => {
-        type === 'featured' ? featured.splice(index, 1) : general.splice(index, 1);
-        save();
-    };
-
-    document.getElementById('saveBtn').onclick = () => {
-        const name = document.getElementById('siteName').value;
-        const url = document.getElementById('siteUrl').value;
-        const target = document.getElementById('siteTarget').value;
-        if(name && url) {
-            target === 'featured' ? featured.push({name, url}) : general.push({name, url});
-            save();
-            document.getElementById('modal').style.display = 'none';
-        }
-    };
-
-    function save() {
-        localStorage.setItem('jm_featured', JSON.stringify(featured));
-        localStorage.setItem('jm_general', JSON.stringify(general));
-        render();
-    }
-
-    document.getElementById('toggleEdit').onclick = function() {
-        isEditing = !isEditing;
-        this.innerText = isEditing ? 'Listo' : 'Editar';
-        render();
-    };
-
-    document.getElementById('openAddModal').onclick = () => document.getElementById('modal').style.display = 'flex';
-    document.getElementById('closeModal').onclick = () => document.getElementById('modal').style.display = 'none';
-
-    document.getElementById('askAI').onclick = async () => {
-        const q = document.getElementById('mainSearch').value;
-        if(!q) return;
-        const panel = document.getElementById('aiPanel');
-        panel.style.display = 'block';
-        document.getElementById('aiContent').innerText = "Consultando...";
-        document.getElementById('aiContent').innerText = await callGemini(q);
-    };
 
     function updateTime() {
         const now = new Date();
         document.getElementById('clock').innerText = now.toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit'});
+        
+        const hour = now.getHours();
+        let greeting = "Buenos días";
+        if (hour >= 13) greeting = "Buenas tardes";
+        if (hour >= 21) greeting = "Buenas noches";
+        document.getElementById('greeting').innerText = `${greeting}, Jose Manuel`;
     }
+
+    document.getElementById('askAI').onclick = async () => {
+        const query = document.getElementById('mainSearch').value;
+        if (!query) return;
+        
+        const panel = document.getElementById('aiPanel');
+        const content = document.getElementById('aiContent');
+        
+        panel.style.display = 'block';
+        content.innerText = "Pensando...";
+        content.innerText = await callGemini(query);
+    };
 
     setInterval(updateTime, 1000);
     updateTime();
